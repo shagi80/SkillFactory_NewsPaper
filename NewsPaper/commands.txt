@@ -1,0 +1,74 @@
+py manage.py makemigrations
+py manage.py migrate
+py manage.py createsuperuser
+
+py manage.py shell
+
+>>> from django.contrib.auth.models import User
+>>> user1 = User.objects.create_user(username="user1", password="123")
+>>> user2 = User.objects.create_user(username="user2", password="123")
+
+>>> from accounts.models import Author
+>>> author1 = Author.objects.create(user=user1)
+>>> author2 = Author.objects.create(user=user2)
+
+>>> from news.models import *
+>>> Category.objects.create(title="Спорт")
+>>> Category.objects.create(title="Погода")
+>>> Category.objects.create(title="Политика")
+>>> Category.objects.create(title="Экономика") 
+
+>>> news1 = Post.objects.create(title="Матч Аргентина-Ямайка закончился со счетом 5:0 ", author=author1) 
+>>> news1.category.add(Category.objects.get(pk=1))
+>>> news1.text = "Сегодня солнце зашло за тучи. Сегодня волны бьют так больно. Я видел как умирала надежда Ямайки. Моя душа плачет."
+>>> news1.save()
+
+>>> art1 = Post.objects.create(title="Четвертый заместитель первого помошника Министра финансов пойман на взятке", author=author1, content_type="ART")
+>>> art1.category.add(Category.objects.get(pk=3))
+>>> art1.category.add(Category.objects.get(pk=4)) 
+>>> art1.text = "Это текст статьи про замминистра поймнного на взятке. Эта статья в двух категориях и возможо длиннее 80-ти симоволов"
+>>> art1.save()
+
+>>> art2 = Post.objects.create(title="На Кубани ожидаются грозы", author=author2, content_type="ART")
+>>> art2.category.add(Category.objects.get(pk=2)) 
+>>> art2.text = "Этот короткий текст."
+>>> art2.save()
+
+>>> com1 = Comment.objects.create(text="Какая боль ...", post=news1, author=User.objects.get(username="shagi80"))
+>>> com2 = Comment.objects.create(text="На Кубани сегодя гроза, на ресницах застыла слеза", post=art2, author=User.objects.get(username="user2"))    
+>>> com3 = Comment.objects.create(text="Деревню Гадюкино смыло", post=art2, author=User.objects.get(username="user1"))                            
+>>> com4 = Comment.objects.create(text="Это, может быть, где-нибудь высоко в горах, понимаете ли, так это... но не в нашем районе", post=art1, author=User.objects.get(username="user1"))
+
+>>> news1.like()
+>>> news1.like()
+>>> news1.dislike()
+>>> art2.like()
+>>> art2.like()
+>>> art1.dislike()
+>>> com1.like()
+>>> com1.like()
+>>> com1.like()
+>>> com3.like()
+>>> com3.like()
+>>> com4.like()
+
+>>> author1.update_rating()
+>>> author2.update_rating()
+
+>>> Author.objects.all().order_by('-rating')[0].user.username
+>>> Author.objects.all().order_by('-rating')[0].rating
+
+>>> best_post = Post.objects.all().order_by('-rating')[0]
+>>> str(best_post.created)
+>>> best_post.author.user.username 
+>>> best_post.rating
+>>> best_post.title
+>>> best_post.preview()
+
+>>> comments = Comment.objects.filter(post=best_post)
+>>> for comment in comments:
+...     f"{comments[0].created:%d.%m.%Y}"
+...     comment.author.username
+...     comment.rating
+...     comment.text
+
