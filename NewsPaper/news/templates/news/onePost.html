@@ -1,0 +1,12 @@
+{% extends 'layout.html' %}
+{% load static %}
+
+{% block title %}
+    {{ block.super }}{{ title }}
+{% endblock title %}
+
+{% block content %}
+    <h3 class="my-4">{{ post.title }}</h3>
+    <h5>{{ post.created|date:'d E Y' }}</h5>
+    <p>{{ post.text }}</p>
+{% endblock content %}
