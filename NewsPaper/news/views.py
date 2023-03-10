@@ -1,6 +1,9 @@
 """ контроллер для приложения News """
 from django.views.generic import ListView, DetailView
 from .models import Post
+from .filters import PostFilter
+
+PAGINATOR_RANGE = 10
 
 
 class PostList(ListView):
@@ -8,7 +11,8 @@ class PostList(ListView):
     model = Post
     template_name = 'news/postList.html'
     context_object_name = 'posts'
-    queryset = Post.objects.all().order_by('-created')
+    ordering = ['-created']
+    paginate_by = PAGINATOR_RANGE
 
 
 class OnePost(DetailView):
@@ -18,3 +22,17 @@ class OnePost(DetailView):
     context_object_name = 'post'
     extra_context = {'title': str(model.title)[:10], }
 
+
+class PostSearch(ListView):
+    """ контроллер представления поиска новостей """
+    model = Post
+    template_name = 'news/searchPost.html'
+    ordering = ['-created']
+    context_object_name = 'posts'
+    paginate_by = PAGINATOR_RANGE
+
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['filter'] = PostFilter(self.request.GET, queryset=self.get_queryset())
+        return context

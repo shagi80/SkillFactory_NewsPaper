@@ -1,5 +1,4 @@
 {% extends 'layout.html' %}
-{% load static %}
 {% load my_tags %}
 
 {% block title %}
@@ -7,22 +6,24 @@
 {% endblock title %}
 
 {% block content %}
+
     <div class='row justify-content-between align-items-center'>
         <h3 class="col-auto my-4">Все новости</h3>
         <div class='col-auto'><h3><span class="badge rounded-pill text-bg-primary">{{ posts|length }} новости</span></h3></div>
     </div>
+
     {% if posts %}
+
+        <!--Вывод новостей-->
         {% for post in posts %}
-        <div class="card mb-3">
-            <h5 class="card-header">{{ post.title|censor }}</h5>
-            <div class="card-body">
-              <h5 class="card-title">{{ post.created|date:'d E Y' }}</h5>
-              <p class="card-text">{{ post.text|censor|truncatechars:50 }}</p>
-              <a href="{% url 'onePost' post.pk %}" class="btn btn-outline-primary">Читать полностью</a>
-            </div>
-        </div>
+            {% show_post post %}
         {% endfor %}
+
+        <!--Пагинатор-->
+        {% include 'page_paginator.html' %}
+
     {% else %}
-        <h5 class='text-center md-5'>Новостей нет ....</h5>
+        <h5 class='text-center my-5'>Новостей нет ....</h5>
     {% endif %}
+
 {% endblock content %}

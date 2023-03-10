@@ -9,7 +9,7 @@ register = template.Library()
 
 @register.filter(name="censor")
 def censor(value):
-    """цензурирование нежелательных слов"""
+    """ цензурирование нежелательных слов """
     file_name = os.path.join(STATICFILES_DIRS[0], 'dictionaries', 'censor.txt')
     if not os.path.exists(file_name):
         return value
@@ -18,3 +18,9 @@ def censor(value):
     for word in censor_dict:
         value = str(value).replace(word, '*'*3)
     return value
+
+
+@register.inclusion_tag('news/tag_show_post.html')
+def show_post(post):
+    """ отображение заголовка новости """
+    return {"post": post}

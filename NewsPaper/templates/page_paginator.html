@@ -1,0 +1,41 @@
+{% if is_paginated %}
+    <div class="btn-group btn-group-sm g-1 my-5" role="group" aria-label="Маленькая группа кнопок">
+        {% if page_obj.has_previous %}
+            <a class="btn btn-outline-dark" href="?page=1" role="button">Первая</a>
+            <a class="btn btn-outline-dark" href="?page={{ page_obj.previous_page_number }}" role="button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-left" viewBox="0 0 16 16">
+                    <path d="M10 12.796V3.204L4.519 8 10 12.796zm-.659.753-5.48-4.796a1 1 0 0 1 0-1.506l5.48-4.796A1 1 0 0 1 11 3.204v9.592a1 1 0 0 1-1.659.753z"/>
+                </svg>
+            </a>
+        {% else %}
+            <a class="btn btn-outline-secondary disabled" role="button">Первая</a>
+            <a class="btn btn-outline-secondary disabled" role="button" disabled>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-left" viewBox="0 0 16 16">
+                    <path d="M10 12.796V3.204L4.519 8 10 12.796zm-.659.753-5.48-4.796a1 1 0 0 1 0-1.506l5.48-4.796A1 1 0 0 1 11 3.204v9.592a1 1 0 0 1-1.659.753z"/>
+                </svg>
+            </a>
+        {% endif %}
+        {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <a class="btn btn-dark" role="button">{{ num }}</a>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <a class="btn btn-outline-dark" href="?page={{ num }}" role="button">{{ num }}</a>
+                {% endif %}
+        {% endfor %}
+        {% if page_obj.has_next %}
+            <a class="btn btn-outline-dark" href="?page={{ page_obj.next_page_number }}" role="button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-right" viewBox="0 0 16 16">
+                    <path d="M6 12.796V3.204L11.481 8 6 12.796zm.659.753 5.48-4.796a1 1 0 0 0 0-1.506L6.66 2.451C6.011 1.885 5 2.345 5 3.204v9.592a1 1 0 0 0 1.659.753z"/>
+                </svg>
+            </a>
+            <a class="btn btn-outline-dark" href="?page={{ page_obj.paginator.num_pages }}" role="button">Последняя</a>
+        {% else %}
+            <a class="btn btn-outline-secondary disabled" role="button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-right" viewBox="0 0 16 16">
+                    <path d="M6 12.796V3.204L11.481 8 6 12.796zm.659.753 5.48-4.796a1 1 0 0 0 0-1.506L6.66 2.451C6.011 1.885 5 2.345 5 3.204v9.592a1 1 0 0 0 1.659.753z"/>
+                </svg>
+            </a>
+            <a class="btn btn-outline-secondary disabled" role="button">Последняя</a>
+        {% endif %}
+    </div>
+{% endif %}

@@ -1,0 +1,9 @@
+{% load my_tags %}
+<div class="card mb-3">
+    <h5 class="card-header">{{ post.title|censor }}</h5>
+    <div class="card-body">
+      <h5 class="card-title">{{ post.created|date:'d E Y' }}</h5>
+      <p class="card-text">{{ post.text|censor|truncatechars:50 }}</p>
+      <a href="{% url 'onePost' post.pk %}" class="btn btn-outline-primary">Читать полностью</a>
+    </div>
+</div>
