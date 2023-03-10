@@ -3,7 +3,7 @@ from django.views.generic import ListView, DetailView
 from .models import Post
 from .filters import PostFilter
 
-PAGINATOR_RANGE = 10
+PAGINATOR_RANGE = 1
 
 
 class PostList(ListView):
@@ -30,6 +30,10 @@ class PostSearch(ListView):
     ordering = ['-created']
     context_object_name = 'posts'
     paginate_by = PAGINATOR_RANGE
+
+    def get_queryset(self):
+        qset = super().get_queryset()
+        return PostFilter(self.request.GET, queryset=qset).qs
 
 
     def get_context_data(self, **kwargs):

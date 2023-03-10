@@ -24,3 +24,13 @@ def censor(value):
 def show_post(post):
     """ отображение заголовка новости """
     return {"post": post}
+
+
+@register.simple_tag
+def get_filters(request):
+    """ получение параметров GET-запроса для корректной пагинации """
+    res = ''
+    for itm in request.GET:
+        if itm != 'page':
+            res = res + '&' + itm + '=' + request.GET.get(itm)
+    return res
