@@ -1,6 +1,7 @@
 """ теги и фильтры """
 from django import template
 import os
+from accounts.models import Author
 from NewsPaper.settings import STATICFILES_DIRS
 
 

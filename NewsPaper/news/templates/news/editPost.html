@@ -1,0 +1,41 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+    {{ block.super }}{{ title }}
+{% endblock title %}
+
+{% block content %}
+    <h3 class="my-4">{{ title }}</h3>
+    <form method="POST">
+        {% csrf_token %}
+
+        <!-- {{ form.errors}} -->
+
+        <div class="row mb-3">
+            <label class="col-sm-2 col-form-label">Заголовок</label>
+            <div class="col-sm-10">
+              {{ form.title }}
+            </div>
+        </div>
+        <div class="row mb-3">
+            <label class="col-sm-2 col-form-label">Категория</label>
+            <div class="col-sm-10">
+                {{ form.category }}
+            </div>
+        </div>
+        <div class="row">
+            <label class="col-sm-2 col-form-label">Текст</label>
+            <div class="col-sm-10">
+                {{ form.text }}
+            </div>
+        </div>
+
+        <!-- скрытое поле -автор- все равно должно присутствовать на странице -->
+        {{ form.author }}
+        
+        <div class="container mt-5 d-flex justify-content-center gap-2">
+            <button type="submit" class="btn btn-primary">Записать</button>
+        </div>
+        
+    </form>
+{% endblock content %}

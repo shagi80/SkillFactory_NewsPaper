@@ -16,7 +16,7 @@
 
         <header class="p-3 bg-dark text-white">
             <div class="container">
-              <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+              <div class="col-auto d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
                 
                 <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-house" viewBox="0 0 16 16">
@@ -28,8 +28,17 @@
                   <li><a href="/" class="nav-link px-2 text-white">Главная</a></li>
                   <li><a href="{% url 'postList' %}" class="nav-link px-2 text-white">Все новости</a></li>
                   <li><a href="{% url 'postSearch' %}" class="nav-link px-2 text-white">Поиск новостей</a></li>
+
+                  {% if request.user.is_authenticated %}
+                    <li><a href="{% url 'createPost' %}" class="nav-link px-2 text-white">Добавить новость</a></li>
+                  {% endif %}
+
                   <li><a href="№" class="nav-link px-2 text-white">Контакты</a></li>
                 </ul>
+                
+                {% if request.user.is_authenticated %}
+                  <div class="mb-2 align-self-lg-end"><span>{{ request.user.username }}</span></div>
+                {% endif %}
         
               </div>
             </div>

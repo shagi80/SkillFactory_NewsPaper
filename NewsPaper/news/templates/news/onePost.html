@@ -1,5 +1,4 @@
 {% extends 'layout.html' %}
-{% load static %}
 {% load my_tags %}
 
 {% block title %}
@@ -7,7 +6,17 @@
 {% endblock title %}
 
 {% block content %}
+
     <h3 class="my-4">{{ post.title|censor }}</h3>
-    <h5>{{ post.created|date:'d-m-Y H:i' }}</h5>
+    <div class="row justify-content-between align-items-center mb-3">
+        <h5 class="col-auto">{{ post.created|date:'d-m-Y H:i' }}</h5>
+        {% if post.author.user == request.user or request.user.is_superuser %}
+        <div class="col-auto">
+            <a href="{% url 'updatePost' post.pk %}" class="btn btn-outline-primary">Изменить</a>
+            <a href="{% url 'deletePost' post.pk %}" class="btn btn-outline-danger">Удалить</a>
+        </div>
+        {% endif %}
+    </div>
     <p>{{ post.text|censor }}</p>
+    
 {% endblock content %}

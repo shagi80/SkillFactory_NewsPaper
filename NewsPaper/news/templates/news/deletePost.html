@@ -1,0 +1,25 @@
+{% extends 'layout.html' %}
+{% load my_tags %}
+
+{% block title %}
+    {{ block.super }}{{ title }}
+{% endblock title %}
+
+{% block content %}
+
+    <h3 class="my-4">Вы действительно хотите удалить эту Новость ?</h3>
+
+    <div class="card mb-5">
+        <h5 class="card-header">{{ post.title|censor }}</h5>
+        <div class="card-body">
+            <h5 class="card-title">{{ post.created|date:'d E Y' }}</h5>
+            <p class="card-text">{{ post.text|censor|truncatechars:100 }}</p>
+        </div>
+    </div>
+    
+    <form class="container d-flex justify-content-center" method="POST">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Удалить</button>
+    </form>
+
+{% endblock content %}
