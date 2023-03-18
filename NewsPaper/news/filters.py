@@ -8,7 +8,7 @@ from .models import Post
 class PostFilter(FilterSet):
     """ фильтр новостей """
     title = CharFilter(
-        lookup_expr = 'icontains',
+        lookup_expr = 'iregex',
         widget = forms.TextInput(attrs={'class':'form-control'})
     )
     created = DateTimeFilter(
