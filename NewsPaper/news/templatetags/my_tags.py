@@ -35,3 +35,9 @@ def get_filters(request):
         if itm != 'page':
             res = res + '&' + itm + '=' + request.GET.get(itm)
     return res
+
+
+@register.filter()
+def is_author(user):
+    """ проверка не является ли пользователь автором """
+    return user.groups.filter(name = 'authors').exists()
