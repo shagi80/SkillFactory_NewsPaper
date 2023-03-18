@@ -1,8 +1,9 @@
 """ контроллер для приложения News """
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, View
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from accounts.models import Author
 from .models import Post
 from .filters import PostFilter
@@ -10,6 +11,12 @@ from .forms import EditPost
 
 PAGINATOR_RANGE = 5
 
+
+class MyView(PermissionRequiredMixin, View):
+    """ оганичеие прав """
+    permission_required = ('<app>.<action>_<model>',
+                           '<app>.<action>_<model>')
+    
 
 class PostList(ListView):
     """ контроллер представления списка новостей """
@@ -47,11 +54,13 @@ class PostSearch(ListView):
         return context
 
 
-class CreatePost(LoginRequiredMixin, UserPassesTestMixin, CreateView):
+
+class CreatePost(PermissionRequiredMixin, CreateView):
     """ Добавление новости """
     template_name = 'news/editPost.html'
     form_class = EditPost
     extra_context = {'title': 'Добавление новости'}
+    permission_required = ('news.add_post')
 
     def get_form_kwargs(self):
         """ инициализация поля -автор- формы  """
@@ -60,16 +69,18 @@ class CreatePost(LoginRequiredMixin, UserPassesTestMixin, CreateView):
             Author, user__pk=self.request.user.pk)
         return kwargs
 
-    def test_func(self):
-        """ добавлять новости могут только авторы и суперпользователь """
-        return Author.objects.filter(user=self.request.user)
+
+    #def test_func(self):
+    #    """ добавлять новости могут только авторы и суперпользователь """
+    #    return Author.objects.filter(user=self.request.user)
 
 
-class UpdatePost(UpdateView):
+class UpdatePost(PermissionRequiredMixin, UpdateView):
     """ редактирование новости """
     template_name = 'news/editPost.html'
     form_class = EditPost
     extra_context = {'title': 'Редактирование новости'}
+    permission_required = ('news.change_post')
 
     def get_object(self, **kwargs):
         return get_object_or_404(Post, pk=self.kwargs.get('pk'))
@@ -80,12 +91,13 @@ class UpdatePost(UpdateView):
         kwargs['author'] = self.object.author
         return kwargs
 
-    def test_func(self):
-        """ изменять новость может только ее автор и суперпользователь """
-        return (self.object.author.user == self.request.user) or self.request.user.is_superuser
+    #def test_func(self):
+    #    """ изменять новость может только ее автор и суперпользователь """
+    #    return (self.object.author.user == self.request.user) or self.request.user.is_superuser
 
 
-class DeletePost(DeleteView):
+class DeletePost(PermissionRequiredMixin, DeleteView):
     template_name = 'news/deletePost.html'
     queryset = Post.objects.all()
     success_url = reverse_lazy('postList')
+    permission_required = ('news.delete_post')
