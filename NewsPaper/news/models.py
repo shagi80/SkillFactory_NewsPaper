@@ -10,6 +10,7 @@ class Category(models.Model):
     title = models.CharField(
         max_length=150, unique=True, null=False, help_text="Категория новостей"
     )
+    subscribers = models.ManyToManyField(User)
 
     class Meta:
         """изменение полей модели"""
@@ -23,7 +24,6 @@ class Category(models.Model):
 
 class Post(models.Model):
     """статьи и новости"""
-
     NEWS = "NWS"
     ARTICLE = "ART"
     CONTENT_TYPES = [
