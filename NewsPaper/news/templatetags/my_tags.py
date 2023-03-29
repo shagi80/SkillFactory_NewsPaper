@@ -41,3 +41,9 @@ def get_filters(request):
 def is_author(user):
     """ проверка не является ли пользователь автором """
     return user.groups.filter(name = 'authors').exists()
+
+
+@register.filter()
+def have_subscription(user, category):
+    """ проверка подписки на категорию """
+    return user and category and  category.subscribers.filter(pk=user.pk)

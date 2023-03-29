@@ -1,47 +1,21 @@
 """ контроллер для приложения News """
+from datetime import timedelta
+from django.utils import timezone
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, View
 from django.shortcuts import get_object_or_404
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
-from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.contrib import messages
+from django.contrib.auth.mixins import PermissionRequiredMixin, LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.shortcuts import redirect
-from django.core.mail import EmailMultiAlternatives
-from django.template.loader import render_to_string
 from accounts.models import Author
 from .models import Post, Category
 from .filters import PostFilter
 from .forms import EditPost
 
 PAGINATOR_RANGE = 5
-
-
-def send_creation_notice(post, path):
-    """ Отправка уведомления о новой новости """
-    print(post)
-    print(post.pk)
-    # составляем список адресов
-    for category in post.category.all():
-        for user in category.subscribers.all():
-            if user.email:
-                # рендеринг HTML шаблона
-                html_content = render_to_string(
-                    'news/post_mail.html',
-                    {'post': post, 'path': f'http://{path}/news/post/{str(post.pk)}',
-                     'category': category, 'user': user}
-                )
-                # подготовка сообщения
-                msg = EmailMultiAlternatives(
-                    subject = post.title,
-                    body=f'Здравствуй, {user.username}. Новая статья в твоём любимом разделе!',
-                    from_email = 'shagi80@yandex.ru',
-                    to = [user.email,]
-                )
-                # привязка HTML и отправка
-                msg.attach_alternative(html_content, "text/html")
-                msg.send()
-
 
 
 class MyView(PermissionRequiredMixin, View):
@@ -107,17 +81,22 @@ class CreatePost(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     extra_context = {'title': 'Добавление новости'}
     permission_required = ('news.add_post')
 
+    def dispatch(self, request, *args, **kwargs):
+        """ провека возможности добавить новость """
+        if request.user.is_authenticated:
+            post_count = Post.objects.filter(author__user=request.user,
+                                            created__gte=(timezone.now() - timedelta(days=1))).count()
+            if post_count == 3:
+                messages.error(request, 'Вы можете добавить не более 3-х статей за сутки.')
+                return redirect('postList')
+        return super().dispatch(request, *args, **kwargs)
+
     def get_form_kwargs(self):
         """ инициализация поля -автор- формы  """
         kwargs = super().get_form_kwargs()
         kwargs['author'] = get_object_or_404(
             Author, user__pk=self.request.user.pk)
         return kwargs
-
-    def get_success_url(self):
-        # отправка уведомления по электронной почте
-        send_creation_notice(self.object, self.request.META["HTTP_HOST"])
-        return super().get_success_url()
     
 
 class UpdatePost(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
@@ -137,6 +116,7 @@ class UpdatePost(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
         return kwargs
 
 
+
 class DeletePost(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     template_name = 'news/deletePost.html'
     queryset = Post.objects.all()
@@ -153,5 +133,8 @@ def subscribers(request):
         if not category.subscribers.filter(pk=user.pk):
             category.subscribers.add(user)
             category.save()
-        return redirect('postList', category_pk=request.POST['category'])
+            messages.success(request, f'Вы успешно подписались на категорию "{category}" !')
+        else:
+            messages.error(request, 'Вы подписывались на эту категорию ранее !')
+        return redirect('postListCategory', category_pk=request.POST['category'])
     return redirect('postList')

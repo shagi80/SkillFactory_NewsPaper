@@ -31,15 +31,19 @@
                     {% endif %}
                     <span class="badge rounded-pill text-bg-secondary">{{ posts|length }}</span>
                 </h3>
-                {% if current_category %}
+                {% if request.user.is_authenticated and current_category %}
                     <div class='col-auto'>
+                        {% if not request.user|have_subscription:current_category %}
                         <form method="POST" action="{% url 'subscribersUser' %}">
                             <input type='hidden' name='category' value='{{ current_category.pk }}'>
                             <button type="submit" class="btn btn-outline-primary" name='user_pk' value="{{ user.pk }}">
                                 {% csrf_token %}
                                 Подписаться
                             </button>
-                        </form>    
+                        </form>
+                        {% else %} 
+                            <span class="text-success">Вы подписаны</span>
+                        {% endif %}   
                     </div>
                 {% endif %}
             </div>
