@@ -29,20 +29,21 @@ def send_messages():
         if user.email:
             # выбираем новые новости из тех категорий, на которые подписан user
             user_new_post = new_posts.filter(category__in=user.category_set.all())
-            # подготовка шаблона и сообщения
-            html_content = render_to_string(
+            if user_new_post:
+                # подготовка шаблона и сообщения
+                html_content = render_to_string(
                         'news/weekly_posts_mail.html',
                         {'posts': user_new_post, 'count': user_new_post.count(), 'user': user}
                     )
-            msg = EmailMultiAlternatives(
+                msg = EmailMultiAlternatives(
                         subject = 'News Paper. Новости за неделю',
                         body=f'Здравствуй, {user.username}. Узнай что произошло за неделю !',
                         from_email = 'shagi80@yandex.ru',
                         to = [user.email,]
                     )
-            # привязка HTML и отправка
-            msg.attach_alternative(html_content, "text/html")
-            msg.send()                
+                # привязка HTML и отправка
+                msg.attach_alternative(html_content, "text/html")
+                msg.send()                
     
  
  
