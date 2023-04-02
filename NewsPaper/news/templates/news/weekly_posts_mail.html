@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NewsPaperMail</title>
+</head>
+<body>
+    {% load my_tags %}
+    <div style="margin-left: auto; margin-right: auto; width: 70%">
+        <div style="padding: 20px; padding-top: 5px">
+            <h3>Здравствуй {{ user.username }}.  Новости за неделю !</h3>
+            <strong>У нас {{ count }} новых нвоостей </strong>
+        </div>
+        <div style="padding-left: 20px; padding-right: 20px;">
+            <ul>
+            {% for post in posts %}
+            <li><a href="http://127.0.0.1:8000/news/post/{{ post.pk }}">{{ post.title }}</a></li>
+            {% endfor %}
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
