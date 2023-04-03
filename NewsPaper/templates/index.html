@@ -6,10 +6,14 @@
 {% endblock title %}
 
 {% block content %}
+    {% load cache %} 
 
-    <main class="text-center">
-        <h3 class="my-4">Это главная страница сайта.</h3>
-        <p>Её содержание пока не определено заданием.</p>
-    </main>
+    <!-- кэширование -->
+    {% cache 60 index %}
+        <main class="text-center">
+            <h3 class="my-4">Это главная страница сайта.</h3>
+            <p>Её содержание пока не определено заданием.</p>
+        </main>
+    {% endcache %}
     
 {% endblock content %}
