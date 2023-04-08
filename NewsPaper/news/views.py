@@ -10,6 +10,7 @@ from django.contrib.auth.mixins import PermissionRequiredMixin, LoginRequiredMix
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.shortcuts import redirect
+from django.core.cache import cache
 from accounts.models import Author
 from .models import Post, Category
 from .filters import PostFilter
@@ -52,7 +53,20 @@ class OnePost(DetailView):
     model = Post
     template_name = 'news/onePost.html'
     context_object_name = 'post'
-    extra_context = {'title': str(model.title)[:10], }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = f'{self.get_object().title[:10]} ...'
+        return context
+
+    def get_object(self):
+        # кэш очень похож на словарь, и метод get действует также. Он забирает значение по ключу, если его нет, то забирает None.
+        obj = cache.get(f'post-{self.kwargs["pk"]}', None)
+        # если объекта нет в кэше, то получаем его и записываем в кэш
+        if not obj:
+            obj = super().get_object(queryset=self.queryset) 
+            cache.set(f'post-{self.kwargs["pk"]}', obj)       
+        return obj
 
 
 class PostSearch(ListView):
@@ -115,6 +129,9 @@ class UpdatePost(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
         kwargs['author'] = self.object.author
         return kwargs
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs) # сначала вызываем метод родителя, чтобы объект сохранился
+        cache.delete(f'post-{self.pk}') # затем удаляем его из кэша, чтобы сбросить его
 
 
 class DeletePost(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):

@@ -2,6 +2,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.urls import reverse_lazy
+from django.core.cache import cache
 
 
 class Category(models.Model):
@@ -75,6 +76,10 @@ class Post(models.Model):
 
     def get_absolute_url(self):
         return reverse_lazy('onePost', args=(self.pk,))
+    
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs) # сначала вызываем метод родителя, чтобы объект сохранился
+        cache.delete(f'post-{self.pk}') # затем удаляем его из кэша, чтобы сбросить его
 
 
 class PostCategory(models.Model):

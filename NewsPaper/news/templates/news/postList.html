@@ -26,48 +26,50 @@
                 </ul>
             </div>
         {% endcache %}
-
-        <div class="col-md-9">
-            <div class='row justify-content-between align-items-center mb-4'>              
-                <h3 class="col-auto">                       
-                    {% if current_category %}
-                        {{ current_category }}
-                    {% else %}
-                        Все новости
+        
+        {% cache 60 category current_category.pk %}
+            <div class="col-md-9">
+                <div class='row justify-content-between align-items-center mb-4'>              
+                    <h3 class="col-auto">                       
+                        {% if current_category %}
+                            {{ current_category }}
+                        {% else %}
+                            Все новости
+                        {% endif %}
+                        <span class="badge rounded-pill text-bg-secondary">{{ posts|length }}</span>
+                    </h3>    
+                    {% if request.user.is_authenticated and current_category %}
+                        <div class='col-auto'>
+                            {% if not request.user|have_subscription:current_category %}
+                            <form method="POST" action="{% url 'subscribersUser' %}">
+                                <input type='hidden' name='category' value='{{ current_category.pk }}'>
+                                <button type="submit" class="btn btn-outline-primary" name='user_pk' value="{{ user.pk }}">
+                                    {% csrf_token %}
+                                    Подписаться
+                                </button>
+                            </form>
+                            {% else %} 
+                                <span class="text-success">Вы подписаны</span>
+                            {% endif %}   
+                        </div>
                     {% endif %}
-                    <span class="badge rounded-pill text-bg-secondary">{{ posts|length }}</span>
-                </h3>    
-                {% if request.user.is_authenticated and current_category %}
-                    <div class='col-auto'>
-                        {% if not request.user|have_subscription:current_category %}
-                        <form method="POST" action="{% url 'subscribersUser' %}">
-                            <input type='hidden' name='category' value='{{ current_category.pk }}'>
-                            <button type="submit" class="btn btn-outline-primary" name='user_pk' value="{{ user.pk }}">
-                                {% csrf_token %}
-                                Подписаться
-                            </button>
-                        </form>
-                        {% else %} 
-                            <span class="text-success">Вы подписаны</span>
-                        {% endif %}   
-                    </div>
+                </div>
+                {% if posts %}
+
+                    <!-- Вывод новостей --> 
+                    <!-- это нельзя кэшировать - категории не переключаются -->               
+                    {% for post in posts %}
+                        {% show_post post %}  
+                    {% endfor %}
+                    
+                    <!--Пагинатор-->
+                    {% include 'page_paginator.html' %}
+
+                {% else %}
+                    <h5 class='text-center my-5'>Новостей нет ....</h5>
                 {% endif %}
             </div>
-            {% if posts %}
-
-                <!-- Вывод новостей --> 
-                <!-- это нельзя кэшировать - категории не переключаются -->               
-                {% for post in posts %}
-                    {% show_post post %}  
-                {% endfor %}
-                
-                <!--Пагинатор-->
-                {% include 'page_paginator.html' %}
-
-            {% else %}
-                <h5 class='text-center my-5'>Новостей нет ....</h5>
-            {% endif %}
-        </div>
+        {% endcache %}
     </main>
 
 {% endblock content %}
