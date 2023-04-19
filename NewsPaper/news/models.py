@@ -32,7 +32,8 @@ class Post(models.Model):
         (ARTICLE, "статья"),
     ]
 
-    title = models.CharField(max_length=255, null=False, help_text="Заголовок новости")
+    title = models.CharField(max_length=255, null=False,
+                             help_text="Заголовок новости")
     text = models.TextField(null=False, help_text="Текст новости")
     rating = models.IntegerField(default=0, help_text="Рейтинг новости")
     content_type = models.CharField(
@@ -41,7 +42,8 @@ class Post(models.Model):
         default=NEWS,
         help_text="Тип контента (новость/статья)",
     )
-    created = models.DateTimeField(auto_now_add=True, help_text="Дата и время создания")
+    created = models.DateTimeField(
+        auto_now_add=True, help_text="Дата и время создания")
     author = models.ForeignKey("accounts.Author", on_delete=models.CASCADE)
     category = models.ManyToManyField(Category, through="PostCategory")
 
@@ -76,10 +78,12 @@ class Post(models.Model):
 
     def get_absolute_url(self):
         return reverse_lazy('onePost', args=(self.pk,))
-    
+
     def save(self, *args, **kwargs):
-        super().save(*args, **kwargs) # сначала вызываем метод родителя, чтобы объект сохранился
-        cache.delete(f'post-{self.pk}') # затем удаляем его из кэша, чтобы сбросить его
+        # сначала вызываем метод родителя, чтобы объект сохранился
+        super().save(*args, **kwargs)
+        # затем удаляем его из кэша, чтобы сбросить его
+        cache.delete(f'post-{self.pk}')
 
 
 class PostCategory(models.Model):
@@ -94,7 +98,8 @@ class Comment(models.Model):
 
     text = models.TextField(null=False, help_text="Текст комментария")
     rating = models.IntegerField(default=0, help_text="Рейтинг комментария")
-    created = models.DateTimeField(auto_now_add=True, help_text="Дата и время создания")
+    created = models.DateTimeField(
+        auto_now_add=True, help_text="Дата и время создания")
     post = models.ForeignKey(
         Post, on_delete=models.CASCADE, help_text="Комментируемая новость"
     )
