@@ -106,6 +106,6 @@ Module D10.4. Написание собственных команд
 deletemews <категория>
 
 
-
+Remove cache files
 
 Разобрался как не отправлять на GitHub *.djcache файлы
