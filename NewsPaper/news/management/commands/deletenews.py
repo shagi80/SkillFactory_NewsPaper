@@ -15,6 +15,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         # запрашиваем подтверждение
         answer = input(f'Вы правда хотите удалить все статьи в категории {options["category"]}? yes/no - ')
+        
         if answer != 'yes':
             self.stdout.write(self.style.ERROR('Отменено'))
         else:
