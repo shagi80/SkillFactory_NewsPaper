@@ -18,7 +18,6 @@ from .forms import EditPost
 
 PAGINATOR_RANGE = 5
 
-
 class MyView(PermissionRequiredMixin, View):
     """ оганичеие прав """
     permission_required = ('<app>.<action>_<model>',

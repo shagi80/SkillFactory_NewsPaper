@@ -109,3 +109,7 @@ deletemews <категория>
 Remove cache files
 
 Разобрался как не отправлять на GitHub *.djcache файлы
+
+Module D12.4
+
+Логирование

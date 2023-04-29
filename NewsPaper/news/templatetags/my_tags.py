@@ -18,6 +18,7 @@ def censor(value):
         censor_dict = file.read().split(', ')
     for word in censor_dict:
         value = str(value).replace(word, '*'*3)
+        #value = str(value).replace(word, word[0] + "*"*(len(word)-2) + word[-1])
     return value
 
 

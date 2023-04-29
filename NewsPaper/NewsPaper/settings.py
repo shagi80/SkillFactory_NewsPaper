@@ -25,9 +25,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-*#_ww5t4ciqt!kecvh#f$ltq@yax$ou!jn^kc3_o&dey(9ybs7'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1']
 
 
 # Application definition
@@ -198,3 +198,139 @@ CACHES = {
         'LOCATION': os.path.join(BASE_DIR, 'cache_files'), 
     }
 }
+
+
+# ----------------------- логирование -------------------------------------
+
+LOGS_DIR = os.path.join(BASE_DIR, 'logs')
+
+ADMINS = [('shagi80', 'shagi80@mail.ru'),]
+
+SERVER_EMAIL = 'shagi80@yandex.ru'
+
+
+def debug_and_info_filter(record):
+    """ фильтр логов DEBUG и INFO  """
+    return record.levelname == 'DEBUG' or record.levelname == 'INFO'
+
+
+def warning_filter(record):
+    """ фильтр логов WARNING """
+    return record.levelname == 'WARNING'
+
+
+def error_and_critical_filter(record):
+    """ фильтр ловго ERROR и CRITICAL """
+    return record.levelname == 'ERROR' or record.levelname == 'CRITICAL'
+
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+
+    'formatters': {
+        'simple': {
+            'format': '{asctime} {levelname} {message}',
+            'style': '{'
+        },
+        'pathname': {
+            'format': '{asctime} {levelname} {message} {pathname}',
+            'style': '{'
+        },
+        'exc_info': {
+            'format': '{asctime} {levelname} {message} {pathname} {exc_info}',
+            'style': '{' 
+        },
+        'module': {
+            'format': '{asctime} {levelname} {module} {message}',
+            'style': '{' 
+        },
+    },
+
+    'filters': {
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse',
+        },
+        'debug_and_info': {
+            '()': 'django.utils.log.CallbackFilter',
+            'callback': debug_and_info_filter,    
+        },   
+        'warning': {
+            '()': 'django.utils.log.CallbackFilter',
+            'callback': warning_filter,    
+        },     
+        'error_and_critical': {
+            '()': 'django.utils.log.CallbackFilter',
+            'callback': error_and_critical_filter,    
+        },
+    },
+
+    'handlers': {
+        'console_DEBUG_INFO': {
+            'filters': ['require_debug_true', 'debug_and_info'],
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
+        },
+        'console_WARNING': {
+            'filters': ['require_debug_true', 'warning'],
+            'class': 'logging.StreamHandler',
+            'formatter': 'pathname'
+        },
+        'console_ERROR_CRITICAL': {
+            'filters': ['require_debug_true', 'error_and_critical'],
+            'class': 'logging.StreamHandler',
+            'formatter': 'exc_info'
+        },
+        'file_INFO': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename' : os.path.join(LOGS_DIR, 'general.log'),
+            'filters': ['require_debug_false',],
+            'formatter': 'module'
+        },
+        'file_ERROR_and_CRITICAL': {
+            'level': 'ERROR',
+            'class': 'logging.FileHandler',
+            'filename' : os.path.join(LOGS_DIR, 'errors.log'),
+            'filters': ['require_debug_false',],
+            'formatter': 'exc_info'
+        },
+        'file_SECURITY': {
+            'class': 'logging.FileHandler',
+            'filename' : os.path.join(LOGS_DIR, 'security.log'),
+            'filters': ['require_debug_false',],
+            'formatter': 'module'
+        },
+        'mail_ERROR': {
+            'class': 'django.utils.log.AdminEmailHandler',
+            'include_html': True,
+            'level': 'ERROR',
+            'formatter': 'pathname'
+        },
+    },
+
+    'loggers': {      
+        'django': {
+            'handlers': ['console_DEBUG_INFO', 'console_WARNING', 'console_ERROR_CRITICAL', 'file_INFO',],        
+        },
+        'django.request': {
+            'handlers': ['file_ERROR_and_CRITICAL', 'mail_ERROR', ],     
+        },
+        'django.server': {
+            'handlers': ['file_ERROR_and_CRITICAL', 'mail_ERROR'],   
+        },
+        'django.template': {
+            'handlers': ['file_ERROR_and_CRITICAL',],   
+        },
+        'django.db_backends': {
+            'handlers': ['file_ERROR_and_CRITICAL',],   
+        },
+        'django.security': {
+            'handlers': ['file_SECURITY',],   
+        },
+    }
+}
+
